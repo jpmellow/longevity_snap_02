@@ -23,72 +23,109 @@ import {
   Assessment as AssessmentIcon
 } from '@mui/icons-material';
 import { Doughnut, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
+import { 
+  Chart as ChartJS, 
+  ArcElement, 
+  Tooltip, 
+  Legend, 
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  Title,
+  Filler
+} from 'chart.js';
 
 // Register ChartJS components
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Filler
+);
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
   const [latestAssessment, setLatestAssessment] = useState(null);
 
   useEffect(() => {
-    // Simulate API call to get user data and latest assessment
     const fetchData = async () => {
       try {
-        // In a real app, this would be an API call
-        setTimeout(() => {
-          setUserData({
-            name: "Alex Johnson",
-            age: 42,
-            longevityScore: 76,
-            motivationDriver: "LONGEVITY",
-            lastAssessment: "2023-05-15",
-            assessmentCount: 3
-          });
-          
-          setLatestAssessment({
-            id: "a123456",
-            date: "2023-05-15",
-            longevityScore: 76,
-            previousScore: 72,
-            categoryScores: {
-              sleep: 82,
-              nutrition: 70,
-              exercise: 75,
-              stress: 65
+        // Simulate API call to get user data and latest assessment
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Add a small delay to simulate API call
+        
+        setUserData({
+          name: "Alex Johnson",
+          age: 42,
+          longevityScore: 76,
+          motivationDriver: "LONGEVITY",
+          lastAssessment: "2023-05-15",
+          assessmentCount: 3
+        });
+        
+        setLatestAssessment({
+          id: "a123456",
+          date: "2023-05-15",
+          longevityScore: 76,
+          previousScore: 72,
+          categoryScores: {
+            sleep: 82,
+            nutrition: 70,
+            exercise: 75,
+            stress: 65
+          },
+          topRecommendations: [
+            {
+              category: "sleep",
+              title: "Optimize Sleep Schedule",
+              description: "Maintain a consistent sleep schedule with 7-8 hours of quality sleep to support cellular repair and brain health."
             },
-            topRecommendations: [
-              {
-                category: "sleep",
-                title: "Optimize Sleep Schedule",
-                description: "Maintain a consistent sleep schedule with 7-8 hours of quality sleep to support cellular repair and brain health."
-              },
-              {
-                category: "nutrition",
-                title: "Increase Plant Diversity",
-                description: "Aim for 30+ different plant foods weekly to support gut microbiome diversity and reduce inflammation."
-              },
-              {
-                category: "exercise",
-                title: "Add Strength Training",
-                description: "Incorporate 2-3 strength training sessions weekly to preserve muscle mass and support metabolic health."
-              }
-            ]
-          });
-          
-          setLoading(false);
-        }, 1500);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+            {
+              category: "nutrition",
+              title: "Increase Plant Diversity",
+              description: "Aim for 30+ different plant foods weekly to support gut microbiome diversity and reduce inflammation."
+            },
+            {
+              category: "exercise",
+              title: "Add Strength Training",
+              description: "Incorporate 2-3 strength training sessions weekly to preserve muscle mass and support metabolic health."
+            }
+          ]
+        });
+        
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
         setLoading(false);
       }
     };
 
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error">Error: {error}</Typography>
+      </Box>
+    );
+  }
 
   // Chart data for longevity score history
   const scoreHistoryData = {
@@ -149,14 +186,6 @@ const Dashboard = () => {
       },
     },
   };
-
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   const getCategoryIcon = (category) => {
     switch (category) {

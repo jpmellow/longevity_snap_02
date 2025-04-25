@@ -30,7 +30,8 @@ import {
   Favorite as HeartIcon,
   Check as CheckIcon,
   Info as InfoIcon,
-  Star as StarIcon
+  Star as StarIcon,
+  Psychology as PsychologyIcon
 } from '@mui/icons-material';
 
 const Results = () => {
@@ -62,6 +63,8 @@ const Results = () => {
               exercise: 75,
               stress: 65
             },
+            nlp_area: "schedule",
+            nlp_recommendation: "Try to maintain a consistent sleep schedule, even on weekends.",
             insights: [
               {
                 type: "motivation_driver",
@@ -246,7 +249,7 @@ const Results = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3, maxWidth: 1200, margin: '0 auto' }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>
           {userName ? `Great job, ${userName}!` : 'Great job!'}
@@ -421,6 +424,44 @@ const Results = () => {
                     </Paper>
                   </Grid>
                 ))}
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* NLP Analysis Section */}
+        <Grid item xs={12}>
+          <Card sx={{ mt: 4, mb: 4 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <PsychologyIcon sx={{ mr: 1, color: '#5C6BC0' }} />
+                <Typography variant="h6" component="h2">
+                  🧠 Smart Insight
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" color="primary" gutterBottom>
+                      Detected Area:
+                    </Typography>
+                    <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
+                      {results.nlp_area}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box>
+                    <Typography variant="subtitle1" color="primary" gutterBottom>
+                      Personalized Recommendation:
+                    </Typography>
+                    <Typography variant="body1">
+                      {results.nlp_recommendation}
+                    </Typography>
+                  </Box>
+                </Grid>
               </Grid>
             </CardContent>
           </Card>

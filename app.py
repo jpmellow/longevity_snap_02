@@ -1,7 +1,7 @@
 """
 Longevity Snapshot App - Meta-Cognitive Processing API
 
-This module implements a FastAPI-based API for the Meta-Cognitive Processing system
+This module implements a Flask-based API for the Meta-Cognitive Processing system
 of the Longevity Snapshot app.
 """
 
@@ -11,8 +11,8 @@ import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel, Field
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 from meta_cognitive_processor import MetaCognitiveProcessor
@@ -20,6 +20,15 @@ from agents.medical_agent import MedicalAgent
 from agents.sleep_agent import SleepAgent
 from agents.medical_reasoning_agent import MedicalReasoningAgent
 from agents.personalization_agent import PersonalizationAgent
+
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from textblob import TextBlob
+
+# Download required NLTK data
+nltk.download('punkt')
+nltk.download('stopwords')
 
 # Load environment variables
 load_dotenv()
@@ -31,139 +40,254 @@ logging.basicConfig(
 )
 logger = logging.getLogger("longevity_snapshot_api")
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="Longevity Snapshot Meta-Cognitive Processing API",
-    description="API for processing health data and generating personalized recommendations",
-    version="1.0.0"
-)
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Initialize Meta-Cognitive Processor
 processor = MetaCognitiveProcessor()
 
 # Data models
-class HealthMetrics(BaseModel):
+class HealthMetrics:
     """Health metrics data model"""
-    blood_pressure_systolic: Optional[int] = Field(None, description="Systolic blood pressure in mmHg")
-    blood_pressure_diastolic: Optional[int] = Field(None, description="Diastolic blood pressure in mmHg")
-    heart_rate: Optional[int] = Field(None, description="Resting heart rate in bpm")
-    blood_glucose: Optional[float] = Field(None, description="Blood glucose level in mg/dL")
-    cholesterol_total: Optional[int] = Field(None, description="Total cholesterol in mg/dL")
-    cholesterol_hdl: Optional[int] = Field(None, description="HDL cholesterol in mg/dL")
-    cholesterol_ldl: Optional[int] = Field(None, description="LDL cholesterol in mg/dL")
-    triglycerides: Optional[int] = Field(None, description="Triglycerides in mg/dL")
+    def __init__(self, 
+                 blood_pressure_systolic: Optional[int] = None, 
+                 blood_pressure_diastolic: Optional[int] = None, 
+                 heart_rate: Optional[int] = None, 
+                 blood_glucose: Optional[float] = None, 
+                 cholesterol_total: Optional[int] = None, 
+                 cholesterol_hdl: Optional[int] = None, 
+                 cholesterol_ldl: Optional[int] = None, 
+                 triglycerides: Optional[int] = None):
+        self.blood_pressure_systolic = blood_pressure_systolic
+        self.blood_pressure_diastolic = blood_pressure_diastolic
+        self.heart_rate = heart_rate
+        self.blood_glucose = blood_glucose
+        self.cholesterol_total = cholesterol_total
+        self.cholesterol_hdl = cholesterol_hdl
+        self.cholesterol_ldl = cholesterol_ldl
+        self.triglycerides = triglycerides
 
-class SleepData(BaseModel):
+class SleepData:
     """Sleep data model"""
-    average_duration: float = Field(..., description="Average sleep duration in hours")
-    quality: str = Field(..., description="Sleep quality (low, medium, high)")
-    bedtime_consistency: str = Field(..., description="Bedtime consistency (low, medium, high)")
-    issues: Optional[List[str]] = Field(None, description="List of sleep issues")
+    def __init__(self, 
+                 average_duration: float, 
+                 quality: str, 
+                 bedtime_consistency: str, 
+                 issues: Optional[List[str]] = None, 
+                 narrative: Optional[str] = None):
+        self.average_duration = average_duration
+        self.quality = quality
+        self.bedtime_consistency = bedtime_consistency
+        self.issues = issues
+        self.narrative = narrative
 
-class NutritionData(BaseModel):
+class NutritionData:
     """Nutrition data model"""
-    calories: int = Field(..., description="Daily calorie intake")
-    protein: float = Field(..., description="Daily protein intake in grams")
-    carbs: float = Field(..., description="Daily carbohydrate intake in grams")
-    fat: float = Field(..., description="Daily fat intake in grams")
-    detailed_macros: Optional[bool] = Field(False, description="Whether detailed macronutrient data is available")
-    fiber: Optional[float] = Field(None, description="Daily fiber intake in grams")
-    sugar: Optional[float] = Field(None, description="Daily sugar intake in grams")
-    water: Optional[float] = Field(None, description="Daily water intake in liters")
+    def __init__(self, 
+                 calories: int, 
+                 protein: float, 
+                 carbs: float, 
+                 fat: float, 
+                 detailed_macros: Optional[bool] = False, 
+                 fiber: Optional[float] = None, 
+                 sugar: Optional[float] = None, 
+                 water: Optional[float] = None):
+        self.calories = calories
+        self.protein = protein
+        self.carbs = carbs
+        self.fat = fat
+        self.detailed_macros = detailed_macros
+        self.fiber = fiber
+        self.sugar = sugar
+        self.water = water
 
-class StressData(BaseModel):
+class StressData:
     """Stress data model"""
-    level: int = Field(..., description="Stress level on a scale of 1-10")
-    sources: Optional[List[str]] = Field(None, description="Sources of stress")
-    coping_mechanisms: Optional[List[str]] = Field(None, description="Stress coping mechanisms")
+    def __init__(self, 
+                 level: int, 
+                 sources: Optional[List[str]] = None, 
+                 coping_mechanisms: Optional[List[str]] = None):
+        self.level = level
+        self.sources = sources
+        self.coping_mechanisms = coping_mechanisms
 
-class ExerciseData(BaseModel):
+class ExerciseData:
     """Exercise data model"""
-    strength_training: int = Field(..., description="Weekly strength training sessions")
-    cardio: int = Field(..., description="Weekly cardio sessions")
-    intensity: str = Field(..., description="Exercise intensity (low, medium, high)")
-    duration: Optional[int] = Field(None, description="Average exercise duration in minutes")
-    types: Optional[List[str]] = Field(None, description="Types of exercises performed")
+    def __init__(self, 
+                 strength_training: int, 
+                 cardio: int, 
+                 intensity: str, 
+                 duration: Optional[int] = None, 
+                 types: Optional[List[str]] = None):
+        self.strength_training = strength_training
+        self.cardio = cardio
+        self.intensity = intensity
+        self.duration = duration
+        self.types = types
 
-class Preferences(BaseModel):
+class Preferences:
     """User preferences model"""
-    diet: Optional[str] = Field(None, description="Dietary preference")
-    exercise_time: Optional[str] = Field(None, description="Preferred time for exercise")
-    sleep_time: Optional[str] = Field(None, description="Preferred sleep time")
-    wake_time: Optional[str] = Field(None, description="Preferred wake time")
-    goals: Optional[List[str]] = Field(None, description="Health and wellness goals")
+    def __init__(self, 
+                 diet: Optional[str] = None, 
+                 exercise_time: Optional[str] = None, 
+                 sleep_time: Optional[str] = None, 
+                 wake_time: Optional[str] = None, 
+                 goals: Optional[List[str]] = None):
+        self.diet = diet
+        self.exercise_time = exercise_time
+        self.sleep_time = sleep_time
+        self.wake_time = wake_time
+        self.goals = goals
 
-class UserHealthData(BaseModel):
+class UserHealthData:
     """User health data model"""
-    user_id: str = Field(..., description="Unique user identifier")
-    age: int = Field(..., description="User age in years")
-    gender: str = Field(..., description="User gender")
-    height: float = Field(..., description="User height in cm")
-    weight: float = Field(..., description="User weight in kg")
-    health_metrics: Optional[HealthMetrics] = Field(None, description="Health metrics data")
-    sleep_data: Optional[SleepData] = Field(None, description="Sleep data")
-    nutrition_data: Optional[NutritionData] = Field(None, description="Nutrition data")
-    stress_data: Optional[StressData] = Field(None, description="Stress data")
-    exercise_data: Optional[ExerciseData] = Field(None, description="Exercise data")
-    preferences: Optional[Preferences] = Field(None, description="User preferences")
-    medical_history: Optional[List[str]] = Field(None, description="Medical history items")
+    def __init__(self, 
+                 user_id: str, 
+                 age: int, 
+                 gender: str, 
+                 height: float, 
+                 weight: float, 
+                 health_metrics: Optional[HealthMetrics] = None, 
+                 sleep_data: Optional[SleepData] = None, 
+                 nutrition_data: Optional[NutritionData] = None, 
+                 stress_data: Optional[StressData] = None, 
+                 exercise_data: Optional[ExerciseData] = None, 
+                 preferences: Optional[Preferences] = None, 
+                 medical_history: Optional[List[str]] = None):
+        self.user_id = user_id
+        self.age = age
+        self.gender = gender
+        self.height = height
+        self.weight = weight
+        self.health_metrics = health_metrics
+        self.sleep_data = sleep_data
+        self.nutrition_data = nutrition_data
+        self.stress_data = stress_data
+        self.exercise_data = exercise_data
+        self.preferences = preferences
+        self.medical_history = medical_history
 
-class ProcessingResponse(BaseModel):
+class ProcessingResponse:
     """Response model for processed health data"""
-    user_id: str = Field(..., description="User ID from the request")
-    timestamp: str = Field(..., description="Timestamp of the processing")
-    recommendations: List[Dict[str, Any]] = Field(..., description="List of recommendations")
-    insights: List[Dict[str, Any]] = Field(..., description="List of insights")
-    confidence: str = Field(..., description="Overall confidence level of the analysis")
-    agent_contributions: Dict[str, Any] = Field(..., description="Contributions from each agent")
+    def __init__(self, 
+                 user_id: str, 
+                 timestamp: str, 
+                 recommendations: List[Dict[str, Any]], 
+                 insights: List[Dict[str, Any]], 
+                 confidence: str, 
+                 agent_contributions: Dict[str, Any], 
+                 nlp_area: str, 
+                 nlp_recommendation: str):
+        self.user_id = user_id
+        self.timestamp = timestamp
+        self.recommendations = recommendations
+        self.insights = insights
+        self.confidence = confidence
+        self.agent_contributions = agent_contributions
+        self.nlp_area = nlp_area
+        self.nlp_recommendation = nlp_recommendation
 
-@app.get("/")
-async def root():
+def analyze_sleep_narrative(narrative: str) -> Dict[str, str]:
+    """
+    Analyze sleep narrative using NLTK and TextBlob to extract key insights and generate recommendations.
+    """
+    if not narrative:
+        return {
+            "area": "unknown",
+            "recommendation": "Please provide more details about your sleep patterns for personalized recommendations."
+        }
+    
+    # Convert to lowercase and tokenize
+    tokens = word_tokenize(narrative.lower())
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token not in stop_words]
+    
+    # Define sleep-related keywords and their associated areas
+    sleep_issues = {
+        "stress": ["stress", "anxiety", "worried", "restless", "tense"],
+        "schedule": ["schedule", "routine", "irregular", "inconsistent", "late", "early"],
+        "environment": ["noise", "light", "temperature", "uncomfortable", "room"],
+        "quality": ["quality", "deep", "light", "interrupted", "wake", "waking"],
+        "duration": ["hours", "long", "short", "enough", "oversleep", "undersleep"]
+    }
+    
+    # Count mentions of each area
+    area_counts = {area: sum(1 for word in tokens if word in keywords) 
+                  for area, keywords in sleep_issues.items()}
+    
+    # Get sentiment from TextBlob
+    sentiment = TextBlob(narrative).sentiment.polarity
+    
+    # Get the most mentioned area
+    primary_area = max(area_counts.items(), key=lambda x: x[1])[0] if any(area_counts.values()) else "general"
+    
+    # Generate recommendation based on the area and sentiment
+    recommendations = {
+        "stress": "Consider incorporating relaxation techniques like deep breathing or meditation before bedtime.",
+        "schedule": "Try to maintain a consistent sleep schedule, even on weekends.",
+        "environment": "Optimize your sleep environment by controlling light, noise, and temperature.",
+        "quality": "Focus on sleep hygiene practices and avoid screens before bedtime.",
+        "duration": "Aim for 7-9 hours of sleep per night for optimal health.",
+        "general": "Consider keeping a sleep diary to identify patterns affecting your sleep quality."
+    }
+    
+    # Add sentiment-based context to recommendation
+    sentiment_context = ""
+    if sentiment < -0.2:
+        sentiment_context = " It seems you're experiencing some challenges. Start with small changes and be patient with yourself."
+    elif sentiment > 0.2:
+        sentiment_context = " You're on the right track! Keep building on your positive habits."
+    
+    return {
+        "area": primary_area,
+        "recommendation": recommendations[primary_area] + sentiment_context
+    }
+
+@app.route("/")
+def root():
     """Root endpoint"""
-    return {"message": "Welcome to the Longevity Snapshot Meta-Cognitive Processing API"}
+    return {"status": "ok", "message": "Longevity Snapshot Meta-Cognitive Processing API"}
 
-@app.post("/process", response_model=ProcessingResponse)
-async def process_health_data(user_data: UserHealthData):
+@app.route("/process", methods=["POST"])
+def process_health_data():
     """
     Process user health data and generate personalized recommendations
-    
-    This endpoint:
-    1. Receives user health data
-    2. Determines which specialized agents are needed
-    3. Routes data to selected agents
-    4. Receives analyses back from agents
-    5. Synthesizes outputs for the Recommendation Engine
-    6. Flags low confidence or contradictions for review
     """
     try:
-        logger.info(f"Processing health data for user: {user_data.user_id}")
+        user_data = request.json
+        timestamp = datetime.now().isoformat()
         
-        # Convert Pydantic model to dictionary
-        user_data_dict = user_data.dict()
+        # Convert JSON data to UserHealthData object
+        user_health_data = UserHealthData(**user_data)
         
-        # Process the data using the Meta-Cognitive Processor
-        result = processor.process_health_data(user_data_dict)
+        # Analyze sleep narrative if available
+        sleep_narrative = user_health_data.sleep_data.narrative if user_health_data.sleep_data else None
+        nlp_analysis = analyze_sleep_narrative(sleep_narrative or "")
         
-        # Add timestamp and user_id to the response
-        result["user_id"] = user_data.user_id
-        result["timestamp"] = datetime.now().isoformat()
+        # Process data with existing logic...
+        processed_data = processor.process_health_data(user_health_data.__dict__)
         
-        return result
+        return jsonify(ProcessingResponse(
+            user_id=user_health_data.user_id,
+            timestamp=timestamp,
+            recommendations=processed_data["recommendations"],
+            insights=processed_data["insights"],
+            confidence=processed_data["confidence"],
+            agent_contributions=processed_data["agent_contributions"],
+            nlp_area=nlp_analysis["area"],
+            nlp_recommendation=nlp_analysis["recommendation"]
+        ).__dict__)
     
     except Exception as e:
         logger.error(f"Error processing health data: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error processing health data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
-@app.get("/health")
-async def health_check():
+@app.route("/health")
+def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
-    import uvicorn
-    
-    # Get port from environment variable or use default
     port = int(os.getenv("PORT", 8000))
-    
-    # Run the API server
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
