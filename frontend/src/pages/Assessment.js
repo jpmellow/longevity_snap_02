@@ -170,6 +170,7 @@ const Assessment = () => {
       setFormData({ ...formData, height: heightFeet && value ? String(parseInt(heightFeet) * 12 + parseInt(value || 0)) : '' });
       return;
     }
+    
     if (name.startsWith('macro_')) {
       const macroType = name.split('_')[1];
       const newMacros = {
@@ -419,6 +420,19 @@ const Assessment = () => {
             </FormControl>
             
             <Stack spacing={3} sx={{ mt: 3 }}>
+              <TextField
+                label="Age"
+                name="age"
+                type="number"
+                value={formData.age}
+                onChange={handleChange}
+                fullWidth
+                required
+                error={!!formErrors.age}
+                helperText={formErrors.age || ''}
+                inputProps={{ min: 18, max: 120 }}
+              />
+              
               <FormControl fullWidth required error={!!formErrors.gender}>
                 <FormLabel>Gender</FormLabel>
                 <RadioGroup
@@ -897,9 +911,6 @@ const Assessment = () => {
                   valueLabelDisplay="auto"
                   aria-labelledby="stress-level-slider"
                 />
-                {!!formErrors.stressLevel && (
-                  <FormHelperText error>{formErrors.stressLevel}</FormHelperText>
-                )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">Low</Typography>
                   <Typography variant="body2" color="text.secondary">High</Typography>

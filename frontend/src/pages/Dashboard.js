@@ -27,13 +27,12 @@ import {
   Chart as ChartJS, 
   ArcElement, 
   Tooltip, 
-  Legend, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  Title,
-  Filler
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title
 } from 'chart.js';
 
 // Register ChartJS components
@@ -45,14 +44,12 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
-  Title,
-  Filler
+  Title
 );
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
   const [latestAssessment, setLatestAssessment] = useState(null);
 
@@ -103,7 +100,6 @@ const Dashboard = () => {
         
         setLoading(false);
       } catch (err) {
-        setError(err.message);
         setLoading(false);
       }
     };
@@ -115,14 +111,6 @@ const Dashboard = () => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography color="error">Error: {error}</Typography>
       </Box>
     );
   }
