@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   useTheme, 
   Box, 
@@ -112,6 +112,15 @@ const AgentInsights = () => {
   const [timeframeFilter, setTimeframeFilter] = useState('6months');
   const [animateProcess, setAnimateProcess] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  // Restored state
+  const [processStep, setProcessStep] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [agentMessages, setAgentMessages] = useState([]);
+  const [confidenceMetrics, setConfidenceMetrics] = useState({ overall: 0 });
+  const [processingStage, setProcessingStage] = useState(0);
+  const [selectedMetric, setSelectedMetric] = useState('longevity');
+  const [predictiveModels, setPredictiveModels] = useState({});
   
   // Tabs configuration
   const tabs = [
@@ -226,6 +235,34 @@ const AgentInsights = () => {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+
+  // Handle timeframe menu open/close
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleTimeframeChange = (value) => {
+    setTimeframeFilter(value);
+    handleMenuClose();
+  };
+
+  // Handle agent selection
+  const handleAgentSelect = (agent) => {
+    setSelectedAgent(agent === selectedAgent ? null : agent);
+  };
+
+  // Toggle animation
+  const toggleAnimation = () => {
+    setAnimateProcess((prev) => !prev);
+  };
+
+  // Advance processing stage (stub)
+  const advanceProcessingStage = () => {
+    setProcessingStage((prev) => (prev + 1) % processingStages.length);
+  };
+
 
   // Animation effect for decision process
   useEffect(() => {
