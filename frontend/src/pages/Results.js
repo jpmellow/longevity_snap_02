@@ -18,8 +18,7 @@ import {
   ListItemIcon,
   ListItemText,
   Avatar,
-  Paper,
-  Stack
+  Paper
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,

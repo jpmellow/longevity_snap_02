@@ -991,10 +991,6 @@ const Assessment = () => {
     }
   };
 
-  const getWeeklyMinutes = (minutesPerDay, daysPerWeek) => {
-    return (Number(minutesPerDay) || 0) * (Number(daysPerWeek) || 0);
-  };
-
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>

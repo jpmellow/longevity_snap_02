@@ -13,19 +13,13 @@ import {
   Chip,
   Card,
   CardContent,
-  CardHeader,
-  IconButton,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Switch,
   Tooltip,
-  CircularProgress,
   LinearProgress,
-  Alert,
   Stack,
-  Slider,
   alpha,
   StepLabel,
   List,
@@ -39,20 +33,16 @@ import {
   Psychology as PsychologyIcon,
   MonitorHeart as CardiologyIcon,
   Biotech as EndocrinologyIcon,
-  FitnessCenter as SportsMedicineIcon,
-  FitnessCenter as FitnessCenterIcon,
   Restaurant as NutritionIcon,
   Opacity as BiometricsIcon,
   Science as ScienceIcon,
   BiotechOutlined as BiomarkersIcon,
   Timeline as TrendsIcon,
   CompareArrows as ComparativeIcon,
-  BarChart as StatisticsIcon,
   Memory as MemoryIcon,
   DataObject as ProcessingIcon,
   Insights as InsightsIcon,
   FilterAlt as FilterIcon,
-  Share as ShareIcon,
   Analytics as AnalyticsIcon,
   DataUsage as DataUsageIcon,
   AccessTime as TimeIcon,
@@ -82,10 +72,9 @@ import {
   Tooltip as ChartTooltip, 
   Legend,
   CategoryScale,
-  LinearScale,
-  BarElement
-} from 'chart.js';
-import { Radar, Doughnut, Line, Bar } from 'react-chartjs-2';
+  LinearScale
+} from 'chart.js'; // (all used)
+import { Radar, Line } from 'react-chartjs-2';
 
 // Register ChartJS components
 ChartJS.register(
@@ -97,8 +86,7 @@ ChartJS.register(
   ChartTooltip,
   Legend,
   CategoryScale,
-  LinearScale,
-  BarElement
+  LinearScale
 );
 
 /**
@@ -122,11 +110,9 @@ const AgentInsights = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [insightsData, setInsightsData] = useState(null);
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [agentNetwork, setAgentNetwork] = useState([]);
   const [confidenceMetrics, setConfidenceMetrics] = useState({});
   const [timeframeFilter, setTimeframeFilter] = useState('6months');
   const [processingStage, setProcessingStage] = useState(0);
-  const [simulationSpeed, setSimulationSpeed] = useState(1000); // milliseconds
   const [animateProcess, setAnimateProcess] = useState(false);
   const [agentMessages, setAgentMessages] = useState([]);
   const [predictiveModels, setPredictiveModels] = useState({});
@@ -140,7 +126,7 @@ const AgentInsights = () => {
     { id: 'network', label: 'Agent Network', icon: <MemoryIcon /> },
     { id: 'insights', label: 'AI Insights', icon: <InsightsIcon /> },
     { id: 'process', label: 'Decision Process', icon: <ProcessingIcon /> },
-    { id: 'stats', label: 'Statistical Analysis', icon: <StatisticsIcon /> },
+    { id: 'stats', label: 'Statistical Analysis', icon: <AnalyticsIcon /> },
     { id: 'predictive', label: 'Predictive Models', icon: <TrendsIcon /> }
   ];
   
@@ -183,9 +169,6 @@ const AgentInsights = () => {
     // Only run this effect once when component mounts
     if (loading) {
       // Set a longer duration (20 seconds for the whole animation)
-      const totalDuration = 20000;
-      
-      // Define specific progress milestones for each step
       const progressMilestones = processingSteps.map((_, index) => 
         (index + 1) * (88 / processingSteps.length)
       );
@@ -244,7 +227,7 @@ const AgentInsights = () => {
       // Start the process
       processNextPoint();
     }
-  }, []);  // Empty dependency array means this only runs once on mount
+  }, [loading, processStep, processingSteps]);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -280,104 +263,6 @@ const AgentInsights = () => {
     } else {
       setAnimateProcess(false);
     }
-  };
-
-  // Generate a network of agent connections
-  const generateAgentNetwork = () => {
-    const nodes = agents.map(agent => ({
-      id: agent.id,
-      data: { ...agent },
-      position: getAgentPosition(agent.id)
-    }));
-
-    const edges = [];
-    agents.forEach(agent => {
-      agent.connections.forEach(targetId => {
-        if (targetId !== agent.id) {
-          edges.push({
-            id: `${agent.id}-${targetId}`,
-            source: agent.id,
-            target: targetId,
-            animated: Math.random() > 0.7,
-            style: { stroke: agent.color }
-          });
-        }
-      });
-    });
-
-    return { nodes, edges };
-  };
-
-  // Assign positions for the agent network visualization
-  const getAgentPosition = (agentId) => {
-    // This would be more sophisticated in a real implementation
-    // using force-directed graph algorithms
-    const positions = {
-      'general': { x: 250, y: 250 },
-      'cardio': { x: 450, y: 150 },
-      'neuro': { x: 400, y: 350 },
-      'nutrition': { x: 100, y: 150 },
-      'endocrine': { x: 100, y: 350 },
-      'sports': { x: 250, y: 450 },
-      'biometrics': { x: 250, y: 100 }
-    };
-    return positions[agentId] || { x: Math.random() * 500, y: Math.random() * 500 };
-  };
-
-  // Generate simulated agent messages for the communication feed
-  const generateAgentMessages = () => {
-    const baseMessages = [
-      {
-        id: 'm1',
-        agentId: 'biometrics',
-        content: 'Processing new biometric data inputs. Blood glucose patterns show notable variability over the past week.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-        confidence: 97
-      },
-      {
-        id: 'm2',
-        agentId: 'cardio',
-        content: 'CardioAgent analyzing heart rate variability metrics. Detecting reduced HRV during sleep hours.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-        confidence: 89,
-        referencesMessage: 'm1'
-      },
-      {
-        id: 'm3',
-        agentId: 'nutrition',
-        content: 'Correlating meal timing data with glucose response. Evening carbohydrate intake appears to affect morning fasting glucose.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-        confidence: 84,
-        referencesMessage: 'm1'
-      },
-      {
-        id: 'm4',
-        agentId: 'neuro',
-        content: 'Sleep quality analysis indicates disrupted deep sleep phases, potentially related to the observed HRV patterns.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-        confidence: 78,
-        referencesMessage: 'm2'
-      },
-      {
-        id: 'm5',
-        agentId: 'general',
-        content: 'Integrating multiple signals suggests a relationship between evening nutrition, sleep quality, and morning glucose regulation.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-        confidence: 92,
-        referencesMessage: ['m3', 'm4']
-      },
-      {
-        id: 'm6',
-        agentId: 'general',
-        content: 'Recommendation generated: Consider shifting carbohydrate intake to earlier in the day and implementing a consistent pre-sleep routine to improve sleep quality and glucose regulation.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-        confidence: 90,
-        referencesMessage: 'm5',
-        type: 'recommendation'
-      }
-    ];
-    
-    return baseMessages;
   };
 
   // Generate predictive models for health metrics
@@ -438,8 +323,6 @@ const AgentInsights = () => {
       // In a real app, these would be API calls
       // Simulate API delay
       setTimeout(() => {
-        setAgentNetwork(generateAgentNetwork());
-        setAgentMessages(generateAgentMessages());
         setPredictiveModels(generatePredictiveModels());
         setInsightsData(generateInsightsData());
         setConfidenceMetrics(generateConfidenceMetrics());
@@ -550,10 +433,15 @@ const AgentInsights = () => {
         accuracy: 89,
         reliability: 83
       },
-      insights: agents.reduce((acc, agent) => {
-        acc[agent.id] = agent.confidence;
-        return acc;
-      }, {})
+      insights: {
+        general: 92,
+        cardio: 87,
+        neuro: 84,
+        nutrition: 89,
+        endocrine: 81,
+        sports: 90,
+        biometrics: 95
+      }
     };
   };
 
@@ -572,7 +460,7 @@ const AgentInsights = () => {
     if (animateProcess) {
       timer = setInterval(() => {
         advanceProcessingStage();
-      }, simulationSpeed);
+      }, 1000);
     }
     
     return () => {
