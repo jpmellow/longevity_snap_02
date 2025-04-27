@@ -124,6 +124,7 @@ const AgentInsights = () => {
   // Tabs configuration
   const tabs = [
     { id: 'network', label: 'Agent Network', icon: <MemoryIcon /> },
+    { id: 'sports', label: 'Sports Medicine', icon: <MedicalIcon /> },
     { id: 'insights', label: 'AI Insights', icon: <InsightsIcon /> },
     { id: 'process', label: 'Decision Process', icon: <ProcessingIcon /> },
     { id: 'stats', label: 'Statistical Analysis', icon: <AnalyticsIcon /> },
@@ -466,7 +467,7 @@ const AgentInsights = () => {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [animateProcess, processingStage, simulationSpeed]);
+  }, [animateProcess, processingStage]);
 
   // Initial data fetch
   useEffect(() => {
@@ -545,7 +546,7 @@ const AgentInsights = () => {
       name: 'KinesisAgent',
       role: 'Specialist',
       specialty: 'Movement Analysis',
-      icon: <SportsMedicineIcon />,
+      icon: <MedicalIcon />,
       color: '#FF9800',
       confidence: 90,
       status: 'active',
@@ -740,8 +741,7 @@ const AgentInsights = () => {
                         key={agent.id}
                         sx={{
                           position: 'absolute',
-                          left: getAgentPosition(agent.id).x,
-                          top: getAgentPosition(agent.id).y,
+                          left: { x: 0, y: 0 },
                           width: agent.id === 'general' ? 120 : 100,
                           height: agent.id === 'general' ? 120 : 100,
                           bgcolor: agent.color,
@@ -874,7 +874,7 @@ const AgentInsights = () => {
                             }}
                           >
                             <ListItemIcon sx={{ mt: 0 }}>
-                              <Avatar sx={{ bgcolor: agent.color }}>
+                              <Avatar sx={{ width: 24, height: 24, bgcolor: agent.color }}>
                                 {agent.icon}
                               </Avatar>
                             </ListItemIcon>
@@ -959,7 +959,7 @@ const AgentInsights = () => {
                               {insightsData.summary.improvingMetrics} improving
                             </Typography>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                              <DeclineIcon sx={{ fontSize: 16, color: 'error.main', mr: 0.5 }} />
+                              <MedicalIcon sx={{ fontSize: 42, color: '#1976d2' }} />
                               {insightsData.summary.decliningMetrics} declining
                             </Typography>
                           </Box>
