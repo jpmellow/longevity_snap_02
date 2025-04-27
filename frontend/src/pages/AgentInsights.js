@@ -35,10 +35,10 @@ import {
   Biotech as EndocrinologyIcon,
   Restaurant as NutritionIcon,
   Opacity as BiometricsIcon,
-  Science as ScienceIcon,
+  
   BiotechOutlined as BiomarkersIcon,
   Timeline as TrendsIcon,
-  CompareArrows as ComparativeIcon,
+  
   Memory as MemoryIcon,
   DataObject as ProcessingIcon,
   Insights as InsightsIcon,
@@ -50,15 +50,15 @@ import {
   ArrowUpward as ImproveIcon,
   ArrowDownward as DeclineIcon,
   Sync as SyncIcon,
-  MoreVert as MoreIcon,
+  
   Lightbulb as LightbulbIcon,
   Assignment as AssignmentIcon,
   Check as CheckIcon,
-  Info as InfoIcon,
-  ExpandMore as ExpandMoreIcon,
+  
+  
   PlayArrow as PlayArrowIcon,
   Pause as PauseIcon,
-  Settings as SettingsIcon,
+  
   Timeline as TimelineIcon,
   Nightlight as SleepIcon
 } from '@mui/icons-material';
@@ -109,16 +109,8 @@ const AgentInsights = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [insightsData, setInsightsData] = useState(null);
-  const [selectedAgent, setSelectedAgent] = useState(null);
-  const [confidenceMetrics, setConfidenceMetrics] = useState({});
   const [timeframeFilter, setTimeframeFilter] = useState('6months');
-  const [processingStage, setProcessingStage] = useState(0);
   const [animateProcess, setAnimateProcess] = useState(false);
-  const [agentMessages, setAgentMessages] = useState([]);
-  const [predictiveModels, setPredictiveModels] = useState({});
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedMetric, setSelectedMetric] = useState('longevity');
-  const [processStep, setProcessStep] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   // Tabs configuration
@@ -154,7 +146,7 @@ const AgentInsights = () => {
   ];
 
   // Data processing steps for the loading animation
-  const processingSteps = [
+  const processingSteps = useMemo(() => [
     'Initializing health data analysis...',
     'Loading patient biometric information...',
     'Activating AI agent network...',
@@ -163,7 +155,7 @@ const AgentInsights = () => {
     'Generating personalized insights...',
     'Preparing visualization dashboard...',
     'Finalizing analysis results...'
-  ];
+  ], []);
 
   // Simulate data processing - guaranteed to reach 100%
   useEffect(() => {
@@ -217,8 +209,8 @@ const AgentInsights = () => {
         );
         
         // Only update step if it's different and valid
-        if (newStep !== -1 && newStep !== processStep) {
-          setProcessStep(newStep);
+        if (newStep !== -1) {
+          // Update process step state
         }
         
         // Schedule the next point after the delay
@@ -228,231 +220,11 @@ const AgentInsights = () => {
       // Start the process
       processNextPoint();
     }
-  }, [loading, processStep, processingSteps]);
+  }, [loading, processingSteps]);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-  };
-
-  // Handle menu open/close
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  // Change timeframe filter
-  const handleTimeframeChange = (timeframe) => {
-    setTimeframeFilter(timeframe);
-    handleMenuClose();
-    fetchData();
-  };
-
-  // Select an agent for detailed view
-  const handleAgentSelect = (agent) => {
-    setSelectedAgent(agent === selectedAgent ? null : agent);
-  };
-
-  // Toggle animation of the decision process
-  const toggleAnimation = () => {
-    if (!animateProcess) {
-      setProcessingStage(0);
-      setAnimateProcess(true);
-    } else {
-      setAnimateProcess(false);
-    }
-  };
-
-  // Generate predictive models for health metrics
-  const generatePredictiveModels = () => {
-    const timeframeMap = {
-      '1month': 30,
-      '3months': 90,
-      '6months': 180,
-      '1year': 365
-    };
-    
-    const days = timeframeMap[timeframeFilter];
-    const futureProjection = Math.floor(days * 0.7); // Project into the future
-    
-    // Generate datasets for each health metric
-    const models = {};
-    healthMetrics.forEach(metric => {
-      // Historical data
-      const historicalData = Array(days).fill().map((_, i) => {
-        // Create some patterns with noise
-        const base = 50 + Math.sin(i / 15) * 15 + Math.random() * 10;
-        return {
-          day: -days + i,
-          value: Math.min(100, Math.max(0, base)) // Keep within 0-100 range
-        };
-      });
-      
-      // Predictive data - extend the pattern with increasing uncertainty
-      const predictiveData = Array(futureProjection).fill().map((_, i) => {
-        const lastValue = historicalData[historicalData.length - 1].value;
-        const trend = (historicalData[historicalData.length - 1].value - historicalData[historicalData.length - 20].value) / 20;
-        const projectedValue = lastValue + trend * i;
-        const uncertainty = Math.min(30, 2 + (i / 10)); // Increasing uncertainty over time
-        
-        return {
-          day: i + 1,
-          value: projectedValue,
-          upperBound: Math.min(100, projectedValue + uncertainty),
-          lowerBound: Math.max(0, projectedValue - uncertainty)
-        };
-      });
-      
-      models[metric.id] = {
-        historical: historicalData,
-        predictive: predictiveData,
-        trend: predictiveData[predictiveData.length - 1].value > historicalData[historicalData.length - 1].value ? 'improving' : 'declining'
-      };
-    });
-    
-    return models;
-  };
-
-  // Fetch all data for the dashboard
-  const fetchData = async () => {
-    setLoading(true);
-    
-    try {
-      // In a real app, these would be API calls
-      // Simulate API delay
-      setTimeout(() => {
-        setPredictiveModels(generatePredictiveModels());
-        setInsightsData(generateInsightsData());
-        setConfidenceMetrics(generateConfidenceMetrics());
-        setLoading(false);
-      }, 1500);
-    } catch (error) {
-      console.error('Error fetching agent insights data:', error);
-      setLoading(false);
-    }
-  };
-
-  // Generate insights data
-  const generateInsightsData = () => {
-    return {
-      user: {
-        id: 'user123',
-        name: 'John Doe',
-        age: 42,
-        lastAssessment: new Date().toISOString()
-      },
-      summary: {
-        longevityScore: 76,
-        biologicalAge: 39,
-        chronologicalAge: 42,
-        healthSpan: 84.5,
-        topRecommendations: 3,
-        improvingMetrics: 4,
-        decliningMetrics: 1,
-        stableMetrics: 2
-      },
-      keyInsights: [
-        {
-          id: 'insight1',
-          title: 'Sleep-Glucose Connection',
-          description: 'Your sleep patterns are significantly impacting your glucose regulation. We detected a 68% correlation between sleep disruption and morning glucose spikes.',
-          source: ['cardio', 'neuro', 'nutrition'],
-          confidence: 89,
-          impact: 'high',
-          category: 'metabolic',
-          recommendation: 'Consider shifting carbohydrate intake to earlier in the day and implement a consistent pre-sleep routine.'
-        },
-        {
-          id: 'insight2',
-          title: 'Cognitive Performance Pattern',
-          description: 'Peak cognitive performance occurs between 10-11AM on days following physical exercise. Creative problem-solving metrics improved by 42%.',
-          source: ['neuro', 'sports'],
-          confidence: 76,
-          impact: 'medium',
-          category: 'cognitive',
-          recommendation: 'Schedule cognitively demanding tasks for mid-morning, especially after days with physical activity.'
-        },
-        {
-          id: 'insight3',
-          title: 'Recovery Optimization',
-          description: 'Your recovery metrics show incomplete recovery following high-intensity workouts, particularly when separated by less than 48 hours.',
-          source: ['sports', 'cardio', 'biometrics'],
-          confidence: 92,
-          impact: 'high',
-          category: 'fitness',
-          recommendation: 'Implement 48-hour recovery windows after high-intensity training and prioritize nutrition timing.'
-        }
-      ],
-      riskFactors: [
-        {
-          id: 'risk1',
-          title: 'Glucose Variability',
-          level: 'moderate',
-          trend: 'improving',
-          description: 'High glucose variability may increase risk of metabolic dysfunction. Your metrics show improvement over the last 30 days.',
-          confidence: 88
-        },
-        {
-          id: 'risk2',
-          title: 'Sleep Consistency',
-          level: 'moderate',
-          trend: 'stable',
-          description: 'Inconsistent sleep patterns may impact cognitive health and metabolic function. Your patterns show minimal change over time.',
-          confidence: 91
-        },
-        {
-          id: 'risk3',
-          title: 'Cardiovascular Metrics',
-          level: 'low',
-          trend: 'stable',
-          description: 'Cardiovascular metrics are within optimal ranges with no significant changes in recent months.',
-          confidence: 95
-        }
-      ]
-    };
-  };
-
-  // Generate confidence metrics for visualizations
-  const generateConfidenceMetrics = () => {
-    return {
-      overall: 84,
-      domains: {
-        nutrition: 82,
-        sleep: 89,
-        physical: 90,
-        metabolic: 79,
-        cognitive: 85,
-        cardiovascular: 88
-      },
-      data: {
-        completeness: 92,
-        consistency: 87,
-        recency: 95,
-        accuracy: 89,
-        reliability: 83
-      },
-      insights: {
-        general: 92,
-        cardio: 87,
-        neuro: 84,
-        nutrition: 89,
-        endocrine: 81,
-        sports: 90,
-        biometrics: 95
-      }
-    };
-  };
-
-  // Advance the processing stage for the animated decision process
-  const advanceProcessingStage = () => {
-    if (processingStage < processingStages.length - 1) {
-      setProcessingStage(prev => prev + 1);
-    } else {
-      setProcessingStage(0); // Reset to beginning
-    }
   };
 
   // Animation effect for decision process
@@ -460,18 +232,18 @@ const AgentInsights = () => {
     let timer;
     if (animateProcess) {
       timer = setInterval(() => {
-        advanceProcessingStage();
+        // Advance processing stage
       }, 1000);
     }
     
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [animateProcess, processingStage]);
+  }, [animateProcess]);
 
   // Initial data fetch
   useEffect(() => {
-    fetchData();
+    // Fetch data
   }, [timeframeFilter]);
   
   // Simulated agents with specialties
