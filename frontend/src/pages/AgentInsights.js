@@ -1652,7 +1652,7 @@ const AgentInsights = () => {
                       <Paper variant="outlined" sx={{ p: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                           <Avatar sx={{ bgcolor: 'error.main', mr: 2 }}>
-                            <FitnessCenterIcon />
+                            <MedicalIcon />
                           </Avatar>
                           <Typography variant="subtitle1">
                             Exercise Protocol
