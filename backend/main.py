@@ -107,24 +107,49 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
 # CRUD for Assessments
 @app.post("/assessments/", response_model=schemas.Assessment)
 def create_assessment(assessment: schemas.AssessmentCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.create_assessment(db, assessment, user_id=current_user.id)
+    return crud.create_assessment(db, assessment, current_user.id)
 
 @app.get("/assessments/", response_model=List[schemas.Assessment])
 def get_assessments(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return db.query(models.Assessment).filter(models.Assessment.user_id == current_user.id).offset(skip).limit(limit).all()
+    assessments = db.query(models.Assessment).filter(models.Assessment.user_id == current_user.id).offset(skip).limit(limit).all()
+    # Deserialize data field for each assessment
+    for a in assessments:
+        try:
+            a.data = json.loads(a.data)
+        except Exception:
+            a.data = {}
+    return assessments
 
 @app.get("/assessments/{assessment_id}", response_model=schemas.Assessment)
 def get_assessment(assessment_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     assessment = db.query(models.Assessment).filter(models.Assessment.id == assessment_id, models.Assessment.user_id == current_user.id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
+    try:
+        assessment.data = json.loads(assessment.data)
+    except Exception:
+        assessment.data = {}
     return assessment
 
-@app.delete("/assessments/{assessment_id}")
+@app.delete("/assessments/{assessment_id}", response_model=str)
 def delete_assessment(assessment_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     assessment = db.query(models.Assessment).filter(models.Assessment.id == assessment_id, models.Assessment.user_id == current_user.id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
     db.delete(assessment)
     db.commit()
-    return {"ok": True}
+    return "Assessment deleted"
+
+# --- LLM Chat Coach Endpoint ---
+@app.post("/chat-coach/", response_model=schemas.ChatCoachResponse)
+def chat_coach(request: schemas.ChatCoachRequest):
+    # Log the incoming request (excluding api_key for security)
+    logging.info(f"Chat coach request: model={request.llm_model}, prompt_length={len(request.prompt)}, assessment_keys={list(request.assessment.keys())}")
+    try:
+        # Here you would call the appropriate LLM API based on request.llm_model and api_key
+        # For now, return a stubbed response
+        dummy_response = f"[Stub] Model: {request.llm_model}. Prompt: {request.prompt[:40]}... Assessment keys: {list(request.assessment.keys())}"
+        return schemas.ChatCoachResponse(response=dummy_response)
+    except Exception as e:
+        logging.error(f"LLM chat-coach error: {e}")
+        raise HTTPException(status_code=500, detail="LLM service error. Please try again later.")

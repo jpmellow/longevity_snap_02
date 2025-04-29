@@ -15,6 +15,7 @@ class Assessment(Base):
     __tablename__ = "assessments"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
+    # Store JSON as string (SQLite); upgrade to JSONB for Postgres
     data = Column(String)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id"))

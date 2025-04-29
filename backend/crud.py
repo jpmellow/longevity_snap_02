@@ -18,9 +18,18 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+import json
+
 def create_assessment(db: Session, assessment: schemas.AssessmentCreate, user_id: int):
-    db_assessment = models.Assessment(**assessment.dict(), user_id=user_id)
+    # Serialize data dict as JSON string for storage
+    db_assessment = models.Assessment(
+        title=assessment.title,
+        data=json.dumps(assessment.data),
+        user_id=user_id
+    )
     db.add(db_assessment)
     db.commit()
     db.refresh(db_assessment)
+    # Deserialize before returning (optional, for API)
+    db_assessment.data = json.loads(db_assessment.data)
     return db_assessment

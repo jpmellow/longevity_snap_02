@@ -14,9 +14,11 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
+from typing import Dict, Any, Optional
+
 class AssessmentBase(BaseModel):
     title: str
-    data: str
+    data: Dict[str, Any]
 
 class AssessmentCreate(AssessmentBase):
     pass
@@ -27,3 +29,12 @@ class Assessment(AssessmentBase):
     user_id: int
     class Config:
         orm_mode = True
+
+class ChatCoachRequest(BaseModel):
+    assessment: Dict[str, Any]
+    prompt: str
+    api_key: Optional[str] = None
+    llm_model: str
+
+class ChatCoachResponse(BaseModel):
+    response: str
