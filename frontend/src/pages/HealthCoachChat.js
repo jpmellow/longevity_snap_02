@@ -46,18 +46,18 @@ const mockAssessment = {
 };
 
 function buildInitialPrompt(assessment) {
-  return `You are a longevity health coach. Here is a summary of the user's assessment:\n\n` +
-    `Age: ${assessment.age}\n` +
-    `Gender: ${assessment.gender}\n` +
-    `Longevity Score: ${assessment.longevityScore}\n` +
-    `Previous Score: ${assessment.previousScore}\n` +
-    `Motivation Driver: ${assessment.motivationDriver}\n` +
-    `Category Scores: Sleep ${assessment.categoryScores.sleep}, Nutrition ${assessment.categoryScores.nutrition}, Exercise ${assessment.categoryScores.exercise}, Stress ${assessment.categoryScores.stress}\n` +
-    `NLP Area: ${assessment.nlp_area}\n` +
-    `NLP Recommendation: ${assessment.nlp_recommendation}\n` +
-    (assessment.insights.length > 0 ? `Key Insights: ${assessment.insights.map(i => i.title + ': ' + i.description).join('; ')}\n` : '') +
-    (assessment.recommendations.length > 0 ? `Recommendations: ${assessment.recommendations.map(r => r.category + ' - ' + r.title + ': ' + r.description).join('; ')}\n` : '') +
-    `\nBegin the conversation by greeting the user and offering to answer questions or provide personalized longevity advice based on their results.`;
+  return (
+    `You are a health coach consulting a user about their longevity score and how to maximize their healthy lifespan. Use the values below to provide actionable, personalized advice about nutrition, sleep, exercise, and stress management.\n\n` +
+    `User Assessment:\n` +
+    `- Age: ${assessment.age}\n` +
+    `- Gender: ${assessment.gender}\n` +
+    `- Longevity Score: ${assessment.longevityScore}\n` +
+    `- Sleep Score: ${assessment.categoryScores.sleep}\n` +
+    `- Nutrition Score: ${assessment.categoryScores.nutrition}\n` +
+    `- Exercise Score: ${assessment.categoryScores.exercise}\n` +
+    `- Stress Score: ${assessment.categoryScores.stress}\n\n` +
+    `Begin by greeting the user and briefly explaining what their longevity score means. Then, offer specific recommendations for improving their longevity based on the scores above.`
+  );
 }
 
 const HealthCoachChat = () => {
