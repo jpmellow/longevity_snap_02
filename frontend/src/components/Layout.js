@@ -28,6 +28,7 @@ const drawerWidth = 240;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Take Assessment', icon: <AssessmentIcon />, path: '/assessment' },
+  { text: 'My Assessment Report', icon: <AssessmentIcon />, path: '/results/a123456' },
   { text: 'History', icon: <HistoryIcon />, path: '/history' },
   { text: 'Agent Insights', icon: <PsychologyIcon />, path: '/agent-insights' },
 ];

@@ -263,13 +263,29 @@ const Results = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Your Health Assessment Results
         </Typography>
-        <Button 
-          variant="outlined" 
-          color="primary" 
-          onClick={() => navigate('/')}
-        >
-          Back to Dashboard
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: '#388e3c',
+              color: 'white',
+              minWidth: 220,
+              height: 40,
+              '&:hover': { backgroundColor: '#2e7d32' }
+            }}
+            onClick={() => { console.log('Consult with Health Coach clicked'); }}
+          >
+            Consult with Health Coach
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => navigate('/')}
+            sx={{ minWidth: 180, height: 40 }}
+          >
+            Back to Dashboard
+          </Button>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
