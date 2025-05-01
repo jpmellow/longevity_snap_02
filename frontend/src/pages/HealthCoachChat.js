@@ -67,6 +67,7 @@ const HealthCoachChat = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState('');
+  const [pendingApiKey, setPendingApiKey] = useState('');
   const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
@@ -120,9 +121,12 @@ const HealthCoachChat = () => {
       </Box>
       <OpenAIApiKeyModal
         open={!apiKey}
-        apiKey={apiKey}
-        setApiKey={setApiKey}
-        onSubmit={() => {}}
+        apiKey={pendingApiKey}
+        setApiKey={setPendingApiKey}
+        onSubmit={() => {
+          setApiKey(pendingApiKey);
+          setMessages([{ sender: 'system', text: buildInitialPrompt(mockAssessment) }]);
+        }}
       />
     </Box>
   );

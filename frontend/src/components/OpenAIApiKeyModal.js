@@ -37,7 +37,9 @@ const OpenAIApiKeyModal = ({ open, apiKey, setApiKey, onSubmit }) => (
       <Button
         variant="contained"
         color="primary"
-        onClick={onSubmit}
+        onClick={() => {
+          if (apiKey) onSubmit();
+        }}
         disabled={!apiKey}
       >
         Continue
@@ -45,5 +47,6 @@ const OpenAIApiKeyModal = ({ open, apiKey, setApiKey, onSubmit }) => (
     </Box>
   </Modal>
 );
+
 
 export default OpenAIApiKeyModal;
