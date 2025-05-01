@@ -1,0 +1,172 @@
+{
+  "user_id": "test_user_123",
+  "timestamp": "2025-04-13T23:00:58.822428",
+  "recommendations": [
+    {
+      "type": "exercise",
+      "action": "increase_cardio",
+      "priority": "medium",
+      "source_agent": "exercise"
+    },
+    {
+      "type": "sleep",
+      "action": "consistent_schedule",
+      "priority": "high",
+      "source_agent": "sleep"
+    },
+    {
+      "type": "nutrition",
+      "action": "increase_protein",
+      "priority": "high",
+      "source_agent": "nutrition"
+    },
+    {
+      "type": "medical",
+      "category": "cardiovascular_health",
+      "action": "monitor_blood_pressure",
+      "description": "Regularly monitor blood pressure and consult with a healthcare provider if consistently elevated",
+      "priority": "high",
+      "reasoning": "Elevated blood pressure increases risk of cardiovascular disease, stroke, and kidney disease",
+      "evidence_category": "clinical_guidelines",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "medical",
+      "category": "cardiovascular_health",
+      "action": "dash_diet",
+      "description": "Consider following the DASH diet (Dietary Approaches to Stop Hypertension), which emphasizes fruits, vegetables, whole grains, and low-fat dairy",
+      "priority": "medium",
+      "reasoning": "The DASH diet has been shown to reduce blood pressure in clinical trials",
+      "evidence_category": "randomized_trial",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "medical",
+      "category": "preventive_care",
+      "action": "regular_checkup",
+      "description": "Schedule a regular health check-up with your primary care physician",
+      "priority": "medium",
+      "reasoning": "Regular preventive care can identify health issues early when they are most treatable",
+      "evidence_category": "clinical_guidelines",
+      "source_agent": "medical_reasoning"
+    }
+  ],
+  "insights": [
+    {
+      "type": "activity_pattern",
+      "description": "Good strength training, limited cardiovascular exercise",
+      "source_agent": "exercise"
+    },
+    {
+      "type": "sleep_pattern",
+      "description": "Irregular sleep schedule detected",
+      "source_agent": "sleep"
+    },
+    {
+      "type": "diet_pattern",
+      "description": "Protein intake below recommended levels",
+      "source_agent": "nutrition"
+    },
+    {
+      "type": "overall_health_status",
+      "description": "Overall health status appears to be fair based on available data",
+      "confidence": "high",
+      "reasoning": "Assessment based on 2 identified health risks and 6 health strengths",
+      "evidence_category": "expert_opinion",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "bmi",
+      "description": "BMI of 24.0 indicates healthy weight",
+      "confidence": "high",
+      "reasoning": "BMI calculation based on reported height and weight",
+      "evidence_category": "clinical_guidelines",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "sleep_pattern",
+      "description": "Sleep pattern appears healthy",
+      "confidence": "medium",
+      "reasoning": "Adequate sleep duration and quality support cognitive function and physical recovery",
+      "evidence_category": "systematic_review",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "physical_activity",
+      "description": "Physical activity level is optimal with 5 sessions per week",
+      "confidence": "medium",
+      "reasoning": "Regular physical activity reduces risk of chronic diseases and supports longevity",
+      "evidence_category": "clinical_guidelines",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "stress_impact",
+      "description": "Stress appears to have a moderate impact on health",
+      "confidence": "medium",
+      "reasoning": "Chronic stress affects cardiovascular, immune, and metabolic health",
+      "evidence_category": "systematic_review",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "cardiovascular_health",
+      "description": "Cardiovascular health shows risk factors: elevated blood pressure",
+      "confidence": "medium",
+      "reasoning": "Cardiovascular health is a key determinant of longevity",
+      "evidence_category": "clinical_guidelines",
+      "source_agent": "medical_reasoning"
+    },
+    {
+      "type": "data_completeness",
+      "description": "Data completeness is complete (100%)",
+      "confidence": "high",
+      "reasoning": "Data completeness assessment: complete (100%). ",
+      "evidence_category": "expert_opinion",
+      "source_agent": "medical_reasoning"
+    }
+  ],
+  "confidence": "medium",
+  "agent_contributions": {
+    "exercise": {
+      "confidence": "high",
+      "key_findings": [
+        "Regular strength training",
+        "Insufficient cardio"
+      ]
+    },
+    "sleep": {
+      "confidence": "high",
+      "key_findings": [
+        "Inconsistent bedtime",
+        "Average 6.5 hours of sleep"
+      ]
+    },
+    "nutrition": {
+      "confidence": "medium",
+      "key_findings": [
+        "Low protein intake",
+        "Adequate hydration"
+      ]
+    },
+    "medical_reasoning": {
+      "confidence": "high",
+      "key_findings": [
+        "Data completeness: complete (100%)",
+        "BMI: 24.0",
+        "Sleep duration: 7.2 hours",
+        "Physical activity: 5 sessions/week",
+        "Stress level: 6/10",
+        "Blood pressure: 120/80 mmHg",
+        "Heart rate: 65 bpm",
+        "Health risk: chronic_stress",
+        "Health risk: elevated",
+        "Health strength: healthy_weight",
+        "Health strength: optimal_sleep_duration",
+        "Health strength: healthy_stress_coping",
+        "Health strength: regular_physical_activity",
+        "Health strength: balanced_exercise_routine",
+        "Health strength: normal_heart_rate",
+        "Algorithm bias risk: low"
+      ]
+    }
+  }
+}

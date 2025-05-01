@@ -1,0 +1,53 @@
+{
+  "user_id": "test_user_123",
+  "age": 42,
+  "gender": "male",
+  "height": 178,
+  "weight": 76,
+  "health_metrics": {
+    "blood_pressure_systolic": 120,
+    "blood_pressure_diastolic": 80,
+    "heart_rate": 65,
+    "blood_glucose": 90,
+    "cholesterol_total": 180,
+    "cholesterol_hdl": 55,
+    "cholesterol_ldl": 110,
+    "triglycerides": 90
+  },
+  "sleep_data": {
+    "average_duration": 7.2,
+    "quality": "medium",
+    "bedtime_consistency": "medium",
+    "issues": ["occasional insomnia", "early waking"]
+  },
+  "nutrition_data": {
+    "calories": 2200,
+    "protein": 100,
+    "carbs": 220,
+    "fat": 70,
+    "detailed_macros": true,
+    "fiber": 25,
+    "sugar": 35,
+    "water": 2.5
+  },
+  "stress_data": {
+    "level": 6,
+    "sources": ["work", "finances"],
+    "coping_mechanisms": ["meditation", "exercise"]
+  },
+  "exercise_data": {
+    "strength_training": 2,
+    "cardio": 3,
+    "intensity": "medium",
+    "duration": 45,
+    "types": ["running", "weight lifting", "yoga"]
+  },
+  "preferences": {
+    "diet": "mediterranean",
+    "exercise_time": "morning",
+    "sleep_time": "11:00 PM",
+    "wake_time": "6:30 AM",
+    "goals": ["increase longevity", "improve energy", "reduce stress"]
+  },
+  "medical_history": ["mild hypertension", "seasonal allergies"]
+}
