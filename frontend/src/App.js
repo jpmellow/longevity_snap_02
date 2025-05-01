@@ -100,6 +100,7 @@ function App() {
             <Route path="/results/:assessmentId" element={<Results />} />
             <Route path="/history" element={<History />} />
             <Route path="/agent-insights" element={<AgentInsights />} />
+            <Route path="/health-coach-chat" element={React.createElement(require('./pages/HealthCoachChat').default)} />
           </Routes>
         </Layout>
       </Router>

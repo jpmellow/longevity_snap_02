@@ -273,7 +273,7 @@ const Results = () => {
               height: 40,
               '&:hover': { backgroundColor: '#2e7d32' }
             }}
-            onClick={() => { console.log('Consult with Health Coach clicked'); }}
+            onClick={() => navigate('/health-coach-chat')}
           >
             Consult with Health Coach
           </Button>
