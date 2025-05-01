@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, Paper, TextField, Button, CircularProgress, Stack, Alert } from '@mui/material';
 import { fetchLLMReply } from '../utils/llmApi';
+import OpenAIApiKeyModal from '../components/OpenAIApiKeyModal';
 
 const mockAssessment = {
   age: 42,
@@ -89,19 +90,6 @@ const HealthCoachChat = () => {
   return (
     <Box sx={{ maxWidth: 700, mx: 'auto', mt: 4, p: 2 }}>
       <Typography variant="h4" gutterBottom>Consult with Health Coach</Typography>
-      <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
-        <TextField
-          label="OpenAI API Key"
-          type="password"
-          value={apiKey}
-          onChange={e => setApiKey(e.target.value)}
-          size="small"
-          sx={{ width: 350 }}
-        />
-        <Typography variant="caption" color="text.secondary">
-          (Your key is only used in-browser)
-        </Typography>
-      </Box>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Paper variant="outlined" sx={{ minHeight: 400, maxHeight: 500, overflowY: 'auto', p: 2, mb: 2 }}>
         <Stack spacing={2}>
@@ -130,6 +118,12 @@ const HealthCoachChat = () => {
           Send
         </Button>
       </Box>
+      <OpenAIApiKeyModal
+        open={!apiKey}
+        apiKey={apiKey}
+        setApiKey={setApiKey}
+        onSubmit={() => {}}
+      />
     </Box>
   );
 };
