@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Box, Typography, Paper, TextField, Button, CircularProgress, Stack } from '@mui/material';
+import { Box, Typography, Paper, TextField, Button, CircularProgress, Stack, Alert } from '@mui/material';
+import { fetchLLMReply } from '../utils/llmApi';
 
 const mockAssessment = {
   age: 42,
@@ -64,24 +65,44 @@ const HealthCoachChat = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
-  // Placeholder for LLM integration
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !apiKey) return;
     setMessages(prev => [...prev, { sender: 'user', text: input }]);
     setLoading(true);
+    setError('');
     setInput('');
-    // Simulate LLM response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { sender: 'coach', text: "[LLM reply placeholder]" }]);
+    try {
+      const reply = await fetchLLMReply({ messages: [...messages, { sender: 'user', text: input }], apiKey });
+      setMessages(prev => [...prev, { sender: 'coach', text: reply }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { sender: 'coach', text: '[Error: ' + err.message + ']' }]);
+      setError(err.message);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
     <Box sx={{ maxWidth: 700, mx: 'auto', mt: 4, p: 2 }}>
       <Typography variant="h4" gutterBottom>Consult with Health Coach</Typography>
+      <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <TextField
+          label="OpenAI API Key"
+          type="password"
+          value={apiKey}
+          onChange={e => setApiKey(e.target.value)}
+          size="small"
+          sx={{ width: 350 }}
+        />
+        <Typography variant="caption" color="text.secondary">
+          (Your key is only used in-browser)
+        </Typography>
+      </Box>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Paper variant="outlined" sx={{ minHeight: 400, maxHeight: 500, overflowY: 'auto', p: 2, mb: 2 }}>
         <Stack spacing={2}>
           {messages.map((msg, idx) => (
@@ -103,8 +124,9 @@ const HealthCoachChat = () => {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+          disabled={loading || !apiKey}
         />
-        <Button variant="contained" color="success" onClick={sendMessage} disabled={loading}>
+        <Button variant="contained" color="success" onClick={sendMessage} disabled={loading || !apiKey}>
           Send
         </Button>
       </Box>
