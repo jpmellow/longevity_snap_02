@@ -79,3 +79,5 @@ temp/
 # Windsurf/Codeium specific files
 .windsurfrules
 .windsurf/
+
+.env
