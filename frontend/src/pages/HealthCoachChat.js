@@ -61,9 +61,7 @@ function buildInitialPrompt(assessment) {
 }
 
 const HealthCoachChat = () => {
-  const [messages, setMessages] = useState([
-    { sender: 'system', text: buildInitialPrompt(mockAssessment) }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState('');
@@ -71,14 +69,21 @@ const HealthCoachChat = () => {
   const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
-  const sendMessage = async () => {
-    if (!input.trim() || !apiKey) return;
-    setMessages(prev => [...prev, { sender: 'user', text: input }]);
+  const sendMessage = async (userInput = null) => {
+    if ((!userInput && !input.trim()) || !apiKey) return;
+    let newMessages = messages;
+    if (userInput !== null) {
+      newMessages = [...messages, { sender: 'user', text: userInput }];
+      setMessages(newMessages);
+      setInput('');
+    }
     setLoading(true);
     setError('');
-    setInput('');
     try {
-      const reply = await fetchLLMReply({ messages: [...messages, { sender: 'user', text: input }], apiKey });
+      const reply = await fetchLLMReply({
+        messages: userInput !== null ? newMessages : messages,
+        apiKey
+      });
       setMessages(prev => [...prev, { sender: 'coach', text: reply }]);
     } catch (err) {
       setMessages(prev => [...prev, { sender: 'coach', text: '[Error: ' + err.message + ']' }]);
@@ -87,6 +92,29 @@ const HealthCoachChat = () => {
       setLoading(false);
     }
   };
+
+  // Send initial greeting after API key is set
+  React.useEffect(() => {
+    if (apiKey && messages.length === 0) {
+      (async () => {
+        setLoading(true);
+        setMessages([]); // clear any old messages
+        setError('');
+        try {
+          const reply = await fetchLLMReply({
+            messages: [{ sender: 'system', text: buildInitialPrompt(mockAssessment) }],
+            apiKey
+          });
+          setMessages([{ sender: 'coach', text: reply }]);
+        } catch (err) {
+          setMessages([{ sender: 'coach', text: '[Error: ' + err.message + ']' }]);
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [apiKey]);
 
   return (
     <Box sx={{ maxWidth: 700, mx: 'auto', mt: 4, p: 2 }}>
@@ -125,7 +153,7 @@ const HealthCoachChat = () => {
         setApiKey={setPendingApiKey}
         onSubmit={() => {
           setApiKey(pendingApiKey);
-          setMessages([{ sender: 'system', text: buildInitialPrompt(mockAssessment) }]);
+          setMessages([]); // system message will be sent in useEffect
         }}
       />
     </Box>
