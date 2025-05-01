@@ -56,7 +56,8 @@ function buildInitialPrompt(assessment) {
     `- Nutrition Score: ${assessment.categoryScores.nutrition}\n` +
     `- Exercise Score: ${assessment.categoryScores.exercise}\n` +
     `- Stress Score: ${assessment.categoryScores.stress}\n\n` +
-    `Begin by greeting the user and briefly explaining what their longevity score means. Then, offer specific recommendations for improving their longevity based on the scores above.`
+    `Begin by greeting the user and briefly explaining what their longevity score means. Then, offer specific recommendations for improving their longevity based on the scores above.\n` +
+    `Do not sign your responses with a name or closing. Respond in a conversational, friendly chat style.`
   );
 }
 
