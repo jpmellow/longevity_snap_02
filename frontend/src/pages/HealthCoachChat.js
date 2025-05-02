@@ -57,6 +57,7 @@ function buildInitialPrompt(assessment) {
     `- Exercise Score: ${assessment.categoryScores.exercise}\n` +
     `- Stress Score: ${assessment.categoryScores.stress}\n\n` +
     `Begin by greeting the user and briefly explaining what their longevity score means. Then, offer specific recommendations for improving their longevity based on the scores above.\n` +
+    `For each message, respond directly and specifically to the user's questions or concerns, adapting your advice as a real health coach would. If the user mentions a specific health condition (such as hypertension), always address it in your recommendations, explaining how it might affect their scores or suggested actions.\n` +
     `Do not sign your responses with a name or closing. Respond in a conversational, friendly chat style.`
   );
 }
