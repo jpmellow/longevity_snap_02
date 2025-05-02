@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, Paper, TextField, Button, CircularProgress, Stack, Alert } from '@mui/material';
 import { fetchLLMReply } from '../utils/llmApi';
-import OpenAIApiKeyModal from '../components/OpenAIApiKeyModal';
+import ModelSelect from '../components/ModelSelect';
 
 const mockAssessment = {
   age: 42,
@@ -63,19 +63,31 @@ function buildInitialPrompt(assessment) {
 }
 
 const HealthCoachChat = () => {
+  const [step, setStep] = useState(0); // 0: API Key, 1: Model, 2: Chat
+  const [apiKey, setApiKey] = useState('');
+  const [pendingApiKey, setPendingApiKey] = useState('');
+  const [model, setModel] = useState('');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [pendingApiKey, setPendingApiKey] = useState('');
   const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
+  const handleApiKeySubmit = () => {
+    setApiKey(pendingApiKey);
+    setPendingApiKey('');
+    setStep(1);
+  };
+
+  const handleModelProceed = () => {
+    setStep(2);
+    // Optionally, clear messages or greet again here if needed
+    setMessages([]);
+  };
+
   const sendMessage = async (userInput = null) => {
-    // Only allow string input, ignore events or non-strings
     const actualInput = userInput !== null ? userInput : input;
-    if (typeof actualInput !== 'string' || !actualInput.trim() || !apiKey) return;
-    // Always add the user's message and clear input
+    if (typeof actualInput !== 'string' || !actualInput.trim() || !apiKey || !model) return;
     const newMessages = [...messages, { sender: 'user', text: actualInput }];
     setMessages(newMessages);
     setInput('');
@@ -84,7 +96,8 @@ const HealthCoachChat = () => {
     try {
       const reply = await fetchLLMReply({
         messages: newMessages,
-        apiKey
+        apiKey,
+        model,
       });
       setMessages(prev => [...prev, { sender: 'coach', text: reply }]);
     } catch (err) {
@@ -95,18 +108,18 @@ const HealthCoachChat = () => {
     }
   };
 
-
-  // Send initial greeting after API key is set
+  // Send initial greeting after entering chat step
   React.useEffect(() => {
-    if (apiKey && messages.length === 0) {
+    if (step === 2 && apiKey && model && messages.length === 0) {
       (async () => {
         setLoading(true);
-        setMessages([]); // clear any old messages
+        setMessages([]);
         setError('');
         try {
           const reply = await fetchLLMReply({
             messages: [{ sender: 'system', text: buildInitialPrompt(mockAssessment) }],
-            apiKey
+            apiKey,
+            model,
           });
           setMessages([{ sender: 'coach', text: reply }]);
         } catch (err) {
@@ -117,55 +130,76 @@ const HealthCoachChat = () => {
         }
       })();
     }
-  }, [apiKey]);
+  }, [step, apiKey, model]);
 
   return (
     <Box sx={{ maxWidth: 700, mx: 'auto', mt: 4, p: 2 }}>
       <Typography variant="h4" gutterBottom>Consult with Health Coach</Typography>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Paper variant="outlined" sx={{ minHeight: 400, maxHeight: 500, overflowY: 'auto', p: 2, mb: 2 }}>
-        <Stack spacing={2}>
-          {messages.filter(msg => msg.sender !== 'system').map((msg, idx) => (
-            <Box key={idx} alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
-              <Typography variant="body2" color={msg.sender === 'user' ? 'primary' : 'secondary'}>
-                <b>{msg.sender === 'user' ? 'You' : 'Health Coach'}:</b> {typeof msg.text === 'string' ? msg.text : '[Invalid message]'}
-              </Typography>
-            </Box>
-          ))}
-          {loading && <CircularProgress size={20} />}
-          <div ref={chatEndRef} />
-        </Stack>
-      </Paper>
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Type your question..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-          disabled={loading || !apiKey}
+      {step === 0 && (
+        <Box>
+          <Typography variant="h6" gutterBottom>Enter your OpenAI API Key</Typography>
+          <TextField
+            label="OpenAI API Key"
+            type="password"
+            value={pendingApiKey}
+            onChange={e => setPendingApiKey(e.target.value)}
+            fullWidth
+            autoFocus
+            onKeyDown={e => {
+              if (e.key === 'Enter' && pendingApiKey) handleApiKeySubmit();
+            }}
+            sx={{ mb: 2 }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleApiKeySubmit}
+            disabled={!pendingApiKey}
+          >
+            Submit
+          </Button>
+        </Box>
+      )}
+      {step === 1 && (
+        <ModelSelect
+          model={model}
+          setModel={setModel}
+          onProceed={handleModelProceed}
+          disabled={!apiKey}
         />
-        <Button variant="contained" color="success" onClick={sendMessage} disabled={loading || !apiKey}>
-          Send
-        </Button>
-      </Box>
-      <OpenAIApiKeyModal
-        open={!apiKey}
-        apiKey={pendingApiKey}
-        setApiKey={setPendingApiKey}
-        onSubmit={() => {
-          setApiKey(pendingApiKey);
-          setMessages([]); // system message will be sent in useEffect
-        }}
-        // Add keydown handler for Enter key in API modal
-        onKeyDown={e => {
-          if (e.key === 'Enter' && pendingApiKey) {
-            setApiKey(pendingApiKey);
-            setMessages([]);
-          }
-        }}
-      />
+      )}
+      {step === 2 && (
+        <>
+          <Paper variant="outlined" sx={{ minHeight: 400, maxHeight: 500, overflowY: 'auto', p: 2, mb: 2 }}>
+            <Stack spacing={2}>
+              {messages.filter(msg => msg.sender !== 'system').map((msg, idx) => (
+                <Box key={idx} alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
+                  <Typography variant="body2" color={msg.sender === 'user' ? 'primary' : 'secondary'}>
+                    <b>{msg.sender === 'user' ? 'You' : 'Health Coach'}:</b> {typeof msg.text === 'string' ? msg.text : '[Invalid message]'}
+                  </Typography>
+                </Box>
+              ))}
+              {loading && <CircularProgress size={20} />}
+              <div ref={chatEndRef} />
+            </Stack>
+          </Paper>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Type your question..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+              disabled={loading}
+            />
+            <Button variant="contained" color="success" onClick={sendMessage} disabled={loading}>
+              Send
+            </Button>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };
