@@ -75,17 +75,15 @@ const HealthCoachChat = () => {
     // Only allow string input, ignore events or non-strings
     const actualInput = userInput !== null ? userInput : input;
     if (typeof actualInput !== 'string' || !actualInput.trim() || !apiKey) return;
-    let newMessages = messages;
-    if (userInput !== null) {
-      newMessages = [...messages, { sender: 'user', text: actualInput }];
-      setMessages(newMessages);
-      setInput('');
-    }
+    // Always add the user's message and clear input
+    const newMessages = [...messages, { sender: 'user', text: actualInput }];
+    setMessages(newMessages);
+    setInput('');
     setLoading(true);
     setError('');
     try {
       const reply = await fetchLLMReply({
-        messages: userInput !== null ? newMessages : messages,
+        messages: newMessages,
         apiKey
       });
       setMessages(prev => [...prev, { sender: 'coach', text: reply }]);
