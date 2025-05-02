@@ -127,7 +127,7 @@ const HealthCoachChat = () => {
           {messages.filter(msg => msg.sender !== 'system').map((msg, idx) => (
             <Box key={idx} alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
               <Typography variant="body2" color={msg.sender === 'user' ? 'primary' : 'secondary'}>
-                <b>{msg.sender === 'user' ? 'You' : 'Health Coach'}:</b> {typeof msg.text === 'string' ? msg.text : JSON.stringify(msg.text)}
+                <b>{msg.sender === 'user' ? 'You' : 'Health Coach'}:</b> {typeof msg.text === 'string' ? msg.text : '[Invalid message]'}
               </Typography>
             </Box>
           ))}
