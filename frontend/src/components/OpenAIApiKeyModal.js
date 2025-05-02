@@ -30,6 +30,11 @@ const OpenAIApiKeyModal = ({ open, apiKey, setApiKey, onSubmit }) => (
         onChange={e => setApiKey(e.target.value)}
         fullWidth
         autoFocus
+        onKeyDown={e => {
+          if (e.key === 'Enter' && apiKey) {
+            onSubmit();
+          }
+        }}
       />
       <Typography variant="caption" color="text.secondary">
         Your key is never stored or sent to any server except OpenAI.

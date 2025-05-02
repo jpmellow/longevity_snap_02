@@ -72,10 +72,12 @@ const HealthCoachChat = () => {
   const chatEndRef = useRef(null);
 
   const sendMessage = async (userInput = null) => {
-    if ((!userInput && !input.trim()) || !apiKey) return;
+    // Only allow string input, ignore events or non-strings
+    const actualInput = userInput !== null ? userInput : input;
+    if (typeof actualInput !== 'string' || !actualInput.trim() || !apiKey) return;
     let newMessages = messages;
     if (userInput !== null) {
-      newMessages = [...messages, { sender: 'user', text: userInput }];
+      newMessages = [...messages, { sender: 'user', text: actualInput }];
       setMessages(newMessages);
       setInput('');
     }
@@ -94,6 +96,7 @@ const HealthCoachChat = () => {
       setLoading(false);
     }
   };
+
 
   // Send initial greeting after API key is set
   React.useEffect(() => {
@@ -156,6 +159,13 @@ const HealthCoachChat = () => {
         onSubmit={() => {
           setApiKey(pendingApiKey);
           setMessages([]); // system message will be sent in useEffect
+        }}
+        // Add keydown handler for Enter key in API modal
+        onKeyDown={e => {
+          if (e.key === 'Enter' && pendingApiKey) {
+            setApiKey(pendingApiKey);
+            setMessages([]);
+          }
         }}
       />
     </Box>
